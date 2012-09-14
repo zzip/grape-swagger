@@ -43,10 +43,13 @@ module Grape
               :mount_path => '/swagger_doc',
               :base_path => nil,
               :api_version => '0.1',
-              :markdown => false
+              :markdown => false,
+              :prefix => '/'
             }
             options = defaults.merge(options)
 
+            prefix options[:prefix]
+            version options[:api_version]
             @@target_class = options[:target_class]
             @@mount_path = options[:mount_path]
             @@class_name = options[:class_name] || options[:mount_path].gsub('/','')
@@ -63,10 +66,12 @@ module Grape
               routes_array = routes.keys.map do |route|
                   { :path => "#{@@mount_path}/#{route}.{format}" }
               end
+              computed_base_path = base_path || "http://#{env['HTTP_HOST']}"
+              computed_base_path = "#{computed_base_path}/#{options[:prefix]}/#{api_version}"
               {
                 apiVersion: api_version,
                 swaggerVersion: "1.1",
-                basePath: base_path || "http://#{env['HTTP_HOST']}",
+                basePath: computed_base_path,
                 operations:[],
                 apis: routes_array
               }

@@ -11,9 +11,11 @@ module Grape
         original_mount mounts
         @combined_routes ||= {}
         mounts::routes.each do |route|
-          resource = route.route_path.match('\/(.*?)[\.\/\(]').captures.first || '/'
-          @combined_routes[resource.downcase] ||= []
-          @combined_routes[resource.downcase] << route
+          resource = route.instance_variable_get("@options")[:namespace].gsub("/", '') || 'global'
+          unless resource == ''
+            @combined_routes[resource.downcase] ||= []
+            @combined_routes[resource.downcase] << route
+          end
         end
       end
 

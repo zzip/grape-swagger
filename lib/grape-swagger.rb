@@ -66,7 +66,7 @@ module Grape
               routes_array = routes.keys.map do |route|
                   { :path => "#{@@mount_path}/#{route}.{format}" }
               end
-              computed_base_path = base_path || "http://#{env['HTTP_HOST']}"
+              computed_base_path = base_path || "#{request.base_url}"
               computed_base_path = "#{computed_base_path}/#{options[:prefix]}/#{api_version}"
               {
                 apiVersion: api_version,

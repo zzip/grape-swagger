@@ -66,12 +66,11 @@ module Grape
               routes_array = routes.keys.map do |route|
                   { :path => "#{@@mount_path}/#{route}.{format}" }
               end
-              computed_base_path = base_path || "#{request.base_url}/#{Rails.configuration.action_controller[:relative_url_root]}"
-              computed_base_path = "#{computed_base_path}/#{options[:prefix]}/#{api_version}"
+              
               {
                 apiVersion: api_version,
                 swaggerVersion: "1.1",
-                basePath: computed_base_path,
+                basePath: real_base_path(base_path, options[:prefix] ,api_version),
                 operations:[],
                 apis: routes_array
               }
@@ -103,7 +102,7 @@ module Grape
               {
                 apiVersion: api_version,
                 swaggerVersion: "1.1",
-                basePath: base_path || "http://#{env['HTTP_HOST']}",
+                basePath: real_base_path(base_path),
                 resourcePath: "",
                 apis: routes_array
               }
@@ -112,6 +111,13 @@ module Grape
 
 
           helpers do
+            
+            def real_base_path(base_path, prefix='', api_version='')
+              relative_root = env['SCRIPT_NAME'] || ''
+              computed_base_path = base_path || "#{request.base_url}#{relative_root}"
+              computed_base_path = File.join(computed_base_path,prefix,api_version)
+            end
+            
             def parse_params(params, path, method)
               if params
                 params.map do |param, value|
